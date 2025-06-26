@@ -54,7 +54,7 @@ U0 = 0; V0 = -7;
 winds.u=U0*ones(size(ocean.Xocn));
 winds.v=V0*ones(size(ocean.Xocn));
 
-%Define boundaries an d floes that act as boundaries
+%Define boundaries and floes that act as boundaries
 side = 1;
 c2_boundary=initialize_boundaries();
 Ly = max(c2_boundary(2,:));Lx = max(c2_boundary(1,:));
@@ -246,7 +246,7 @@ while im_num<nSnapshots
         doInt.flag=false;
     end
 
-    %Simplify the floe shapes if there are to many vertices
+    %Simplify the floe shapes if there are too many vertices
     if mod(i_step,nSimp)==0 && SIMPLIFY
         FloeOld = Floe;
         parfor j=1:length(FloeOld)
@@ -306,6 +306,10 @@ while im_num<nSnapshots
             [fig] =plot_basic_bonds(fig,Floe,ocean,c2_boundary_poly,Nb,Nbond,PERIODIC);
 %            [fig] =plot_basic(fig, Time,Floe,ocean,c2_boundary_poly,Nb,PERIODIC);
             exportgraphics(fig,['./Floes_bnds/figs/' num2str(im_num,'%03.f') '.jpg']);
+
+            %plot fractures as a graph
+            [fractures_spatial] = plot_fracture_graph(fractures_spatial, Floe, ocean, c2_bounary_poly, Nb, Nbond, PERIODIC); 
+            exportgraphics(fractures_spatial, ['./Floes_bnds/fractures/' num2str(im_num, '%03.f') '.jpg']);
         end
         
 
