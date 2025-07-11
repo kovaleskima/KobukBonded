@@ -307,9 +307,6 @@ while im_num<nSnapshots
 %            [fig] =plot_basic(fig, Time,Floe,ocean,c2_boundary_poly,Nb,PERIODIC);
             exportgraphics(fig,['./Floes_bnds/figs/' num2str(im_num,'%03.f') '.jpg']);
 
-            %plot fractures as a graph
-            [fractures_spatial] = plot_fracture_graph(fractures_spatial, Floe, ocean, c2_bounary_poly, Nb, Nbond, PERIODIC); 
-            exportgraphics(fractures_spatial, ['./Floes_bnds/fractures/' num2str(im_num, '%03.f') '.jpg']);
         end
         
 

@@ -116,7 +116,7 @@ for iii = 1:length(Floes)
     poly(iii) = polyshape(Floes(iii).c_alpha'+[Floes(iii).Xi Floes(iii).Yi]);
 end
 count = 1;
-clear p
+%clear p
 % for ii = 1+Nbond:length(binsizes)
 %     if Lia(ii)
 %         Lia1 = ismember(bins,ii);
@@ -129,10 +129,10 @@ clear p
 plot(Xc,Yc,'r.','linewidth',3)
 % 
 hold on
-% colors = distinguishable_colors(length(p));
-% for ii = 1:length(p)
-%     plot(p(ii),'FaceColor',colors(ii,:) )
-% end
+colors = distinguishable_colors(length(poly));
+ for ii = 1:length(poly)
+     plot(poly(ii),'FaceColor',colors(ii,:) )
+ end
 
 plot(poly,'FaceColor','k','FaceAlpha',0.3,'EdgeColor',[1 1 1]*0.2,'linestyle','none');
 if Nbound>0
