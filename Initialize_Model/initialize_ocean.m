@@ -16,10 +16,6 @@ Xo=-1e5:dXo:1e5; Yo=-1e5:dXo:1e5;
 [Xocn, Yocn]=meshgrid(Xo,Yo);
 ocean.Xocn = Xocn; ocean.Yocn = Yocn;
 
-%defining ocean streamfunction with some eddies
-transport=5e3; % horizontal transport, in m^2/s (controls ocean currents) 
-psi_ocean=transport*sin(2*pi*Xocn/40e4).*cos(2*pi*Yocn/50e4); 
-
 %calculating ocean velocity field 
 Uocn=zeros(size(Xocn)); Vocn=zeros(size(Xocn));
 

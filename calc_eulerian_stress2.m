@@ -1,9 +1,7 @@
-function [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,Nbond,c2_boundary,dt,PERIODIC)
+function [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,~,c2_boundary,~,PERIODIC)
 %% Function to take information of all floes and average them over a corase grained area
 id = 'MATLAB:polyshape:boolOperationFailed';
 warning('off',id)
-
-global Modulus
 
 %Identify only the live floes
 live = cat(1,Floe.alive);
@@ -28,13 +26,11 @@ clear Stress
 %Create ghost floes for periodic floe states
 Lx= max(c2_boundary(1,:));
 Ly= max(c2_boundary(2,:));%c2 must be symmetric around x=0 for channel boundary conditions.
-N0=length(Floe);
+
 if PERIODIC
     
     ghostFloeX=[];
     ghostFloeY=[];
-    parent=[];
-    translation = [];
     
     x=cat(1,Floe.Xi);
     y=cat(1,Floe.Yi);
@@ -118,24 +114,24 @@ eularian_data.k = zeros(Ny,Nx);
 
 
 mass = cat(1,Floe.mass);
-mass(isnan(mass)==1)=0;
+mass(isnan(mass))=0;
 A = cat(1,Floe.area);
 Overlap = cat(1,Floe.OverlapArea);
-A(isnan(A)==1)=0;
+A(isnan(A))=0;
 U = cat(1,Floe.Ui);
-U(isnan(U)==1)=0;
+U(isnan(U))=0;
 V = cat(1,Floe.Vi);
-V(isnan(V)==1)=0;
+V(isnan(V))=0;
 H = cat(1,Floe.h);
-H(isnan(H)==1)=0;
-dU = cat(1,Floe.dUi_p);%(U-cat(1,Floe.dXi_p))/dt;
-dU(isnan(dU)==1)=0;
-dV = cat(1,Floe.dVi_p);%(V-cat(1,Floe.dYi_p))/dt;
-dV(isnan(dV)==1)=0;
+H(isnan(H))=0;
+dU = cat(1,Floe.dUi_p);
+dU(isnan(dU))=0;
+dV = cat(1,Floe.dVi_p);
+dV(isnan(dV))=0;
 ForceX = cat(1,Floe.Fx);
-ForceX(isnan(ForceX)==1)=0;
+ForceX(isnan(ForceX))=0;
 ForceY = cat(1,Floe.Fy);
-ForceY(isnan(ForceY)==1)=0;
+ForceY(isnan(ForceY))=0;
 Stress = zeros(2,2,length(Floe));
 Strain = zeros(2,2,length(Floe));
 for ii = 1:length(Floe)
@@ -161,11 +157,7 @@ if Nb > 0
             boundaries = union(boundaries,poly(ii));
         end
     end
-    %for jj = 1:Nb
-    %    in = inpolygon(xx(:),yy(:),poly(jj).Vertices(:,1),poly(jj).Vertices(:,2));
-    %    inP(:) = inP(:) + in;
-    %end
-    %inP = flipud(inP);
+
 else
     boundaries = [];
 end
@@ -198,53 +190,41 @@ for ii = 1:Nx
             FloeNums = 1:length(Floe);
             FloeNums(live==0) = [];
             overlap = intersect(box,poly(FloeNums));
-%             overlap = intersect(box,poly(logical(potentialInteractions(jj,ii,:))));
             Aover = area(overlap)';
             FloeNums(Aover==0)=[];
             Aover(Aover==0) = [];
             A2 = A(FloeNums);
             Mtot = sum(mass(FloeNums).*Aover./A2);
             Atot = sum(Aover);
-%             poly2 = union([overlap]);
-%             if area(poly2)/area(box) < 0.1
-%                 xx = 1; xx(1) =[1 2];
-%             end
             eularian_data.c(jj,ii) = Atot/area(box);
             if Mtot>0
                 eularian_data.Over(jj,ii) = sum(Overlap(FloeNums))/length(Aover);
                 eularian_data.Mtot(jj,ii) = Mtot;
                 eularian_data.area(jj,ii) = Atot;
-                eularian_data.h(jj,ii) = sum(H(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.u(jj,ii) = sum(U(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.v(jj,ii) = sum(V(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.du(jj,ii) = sum(dU(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.dv(jj,ii) = sum(dV(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.force_x(jj,ii) = sum(ForceX(FloeNums).*Aover./A2);%(Mtot*Atot/Area)%sum(mass(logical(potentialInteractions(jj,ii,:)))'.*dU(logical(potentialInteractions(jj,ii,:)))'.*Aover)./(dt*Area);
-%                 eularian_data.force_x(jj,ii) = sum(ForceX(FloeNums))./Mtot;%(Mtot*Atot/Area)%sum(mass(logical(potentialInteractions(jj,ii,:)))'.*dU(logical(potentialInteractions(jj,ii,:)))'.*Aover)./(dt*Area);
-                eularian_data.force_y(jj,ii) = sum(ForceY(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)%sum(mass(logical(potentialInteractions(jj,ii,:)))'.*dV(logical(potentialInteractions(jj,ii,:)))'.*Aover)./(dt*Area);
-                %             eularian_data.stress(jj,ii) = 0.5*trace(sum(Stress(:,:,logical(potentialInteractions(jj,ii,:))).*zg,3)./sum(Aover))/2;
-%                 eularian_data.stressxx(jj,ii) = sum(squeeze(Stress(1,1,(FloeNums))).*mass(FloeNums))./Mtot;%(Mtot*Atot/Area)
-               eularian_data.stressxx(jj,ii) = sum(squeeze(Stress(1,1,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.stressyx(jj,ii) = sum(squeeze(Stress(1,2,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.stressxy(jj,ii) = sum(squeeze(Stress(2,1,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.stressyy(jj,ii) = sum(squeeze(Stress(2,2,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.strainux(jj,ii) = sum(squeeze(Strain(1,1,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.strainvx(jj,ii) = sum(squeeze(Strain(1,2,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.strainuy(jj,ii) = sum(squeeze(Strain(2,1,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
-                eularian_data.strainvy(jj,ii) = sum(squeeze(Strain(2,2,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;%(Mtot*Atot/Area)
+                eularian_data.h(jj,ii) = sum(H(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.u(jj,ii) = sum(U(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.v(jj,ii) = sum(V(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.du(jj,ii) = sum(dU(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.dv(jj,ii) = sum(dV(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.force_x(jj,ii) = sum(ForceX(FloeNums).*Aover./A2);
+
+                eularian_data.force_y(jj,ii) = sum(ForceY(FloeNums).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.stressxx(jj,ii) = sum(squeeze(Stress(1,1,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.stressyx(jj,ii) = sum(squeeze(Stress(1,2,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.stressxy(jj,ii) = sum(squeeze(Stress(2,1,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.stressyy(jj,ii) = sum(squeeze(Stress(2,2,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.strainux(jj,ii) = sum(squeeze(Strain(1,1,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.strainvx(jj,ii) = sum(squeeze(Strain(1,2,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.strainuy(jj,ii) = sum(squeeze(Strain(2,1,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;
+                eularian_data.strainvy(jj,ii) = sum(squeeze(Strain(2,2,(FloeNums))).*mass(FloeNums).*Aover./A2)./Mtot;
                 eularian_data.stress(jj,ii) = max(eig([eularian_data.stressxx(jj,ii) eularian_data.stressyx(jj,ii); eularian_data.stressxy(jj,ii) eularian_data.stressyy(jj,ii)]));
                 if abs(eularian_data.stress(jj,ii))> 1e8
                     eularian_data.stress(jj,ii) = 0;
                 end
-%                 eularian_data.k(jj,ii) = (1/Mtot*sum(mass(FloeNums).*sqrt(A(FloeNums))./(H(FloeNums)*Modulus)))^(-1);
             end
-%             Sig(logical(potentialInteractions(jj,ii,:))) = eularian_data.stress(jj,ii);
         end
     end
 end
-% Sig = Sig(1:N0);
-% eularian_data.Sig = Sig;
-% plot([Floe.poly])
 warning('on',id)
 
 end

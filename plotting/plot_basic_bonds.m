@@ -4,11 +4,9 @@ function [fig] =plot_basic_bonds(fig, Floe,ocean,c2_boundary_poly,Nbound,Nbond,P
 Lx= max(c2_boundary_poly.Vertices(:,1)); %c2 must be symmetric around x=0 for channel boundary conditions.
 Ly= max(c2_boundary_poly.Vertices(:,2)); 
 Lymax= max(c2_boundary_poly.Vertices(:,2)); 
-Lymin= min(c2_boundary_poly.Vertices(:,2)); 
 live = cat(1,Floe.alive);
 Floe(live == 0) = [];
 
-N0=length(Floe);
 if PERIODIC
     
     ghostFloeX=[];
@@ -60,7 +58,6 @@ if PERIODIC
 end
 
 %Find length of new Floe variable including the ghost floes
-N=length(Floe);
 for iii = 1:Nbound
     poly_bound(iii) = polyshape(Floe(iii).c_alpha'+[Floe(iii).Xi Floe(iii).Yi]);
 end
@@ -80,7 +77,7 @@ hold on;
 
 axis([ocean.Xo(1) ocean.Xo(end) ocean.Yo(1) ocean.Yo(end)]);
 
-colormap('gray'); caxis([0 1]);
+colormap('gray'); clim([0 1]);
 
 grid
 ax = gca;
@@ -88,8 +85,6 @@ ax.GridAlpha = 0.5;
 
 %% Plot the Floes and Ghost Floes
 Floes = Floe(Nbound+1:end);
-FloeNumbers = 1:length(Floes);
-Nums = cat(1,Floes.num);
 clear f1; clear f2
 Xc = []; Xb = [];
 Yc = []; Yb = [];
@@ -107,28 +102,15 @@ for ii = 1:length(Floes)
         count = count+1;
     end
 end
-f2(f1 ==0) = [];f1(f1 ==0) = [];
-G = digraph(f1,f2);
-[bins,binsizes] = conncomp(G,'Type','weak');
-Lia = ismember(FloeNumbers,Nums);
-Lia(1:Nbond) = 0;
+
 clear poly
 for iii = 1:length(Floes)
     poly(iii) = polyshape(Floes(iii).c_alpha'+[Floes(iii).Xi Floes(iii).Yi]);
 end
-count = 1;
-%clear p
-% for ii = 1+Nbond:length(binsizes)
-%     if Lia(ii)
-%         Lia1 = ismember(bins,ii);
-%         Lia2 = ismember(Nums,FloeNumbers(Lia1));
-%         ptmp = union([poly(Lia2)]);
-%         p(count) = ptmp;%rmholes(ptmp);
-%         count = count+1;  
-%     end
-% end
+
+
 plot(Xc,Yc,'r.','linewidth',3)
-% 
+
 hold on
 colors = distinguishable_colors(length(poly));
  for ii = 1:length(poly)
@@ -145,16 +127,10 @@ xb=c2_boundary_poly.Vertices(:,1); xb(end+1)=xb(1);
 yb=c2_boundary_poly.Vertices(:,2); yb(end+1)=yb(1);
 plot(xb,yb, 'k-','linewidth',2); % PLOTTING BROKEN BONDS HERE
 
-%plot(poly(1+Nbound:length(Floe)),'FaceColor',[0 0.2 0],'FaceAlpha',1,'EdgeAlpha',0);
-%error()
 
-colormap('gray'); caxis([0 1]);
+colormap('gray'); clim([0 1]);
 axis([-Lx Lx -Lymax Lymax])
-% axis([000 20000 00 20000])
-%xlabel('m');ylabel('m');
-set(gca,'Ydir','normal');
-% set(gca,'xtick',[])
-% set(gca,'ytick',[])
 
-% drawnow
+set(gca,'Ydir','normal');
+
 end
