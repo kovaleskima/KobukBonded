@@ -40,7 +40,7 @@ justfrac = false;
 paths
 
 dt=10; %Time step in sec
-height.mean = 0.25;
+height.mean = 0.1;
 height.delta = 0;
 
 %Define ocean currents
@@ -142,7 +142,7 @@ save('Modulus.mat','Modulus','r_mean','L_mean');
 
 dhdt = 1; %Set to 1 for ice to grow in thickness over time
 
-nDTOut=150; %Output frequency (in number of time steps)
+nDTOut=50; %Output frequency (in number of time steps)
 
 nSnapshots=100; %Total number of model snapshots to save
 
@@ -340,10 +340,10 @@ while im_num<nSnapshots
         
                 
         if ifPlotStress
-            [fig] =plot_basic_stress(fig, Time,Floe,ocean,c2_boundary_poly,Nb,bonds);
-            saveas(fig,['./Floes_bnds/figs/' num2str(im_num,'%03.f') '.jpg'],'jpg');
-%             figure(2)
-%             plot(Xc,SigXXa,'kx','linewidth',2); title(['Time = ' num2str(Time/3600) ' hours'],'fontsize',24);
+            [fig] =plot_basic_stress(fig, Time,Floe,ocean,c2_boundary_poly,Nb);
+            saveas(fig,['./Stresses/figs/' num2str(im_num,'%03.f') '.jpg'],'jpg');
+            figure(2)
+            plot(Xc,SigXXa,'kx','linewidth',2); title(['Time = ' num2str(Time/3600) ' hours'],'fontsize',24);
             drawnow
         end
         
@@ -358,13 +358,13 @@ while im_num<nSnapshots
             subplot(2,4,4); imagesc(Xc,Yc,Evx); hold on; quiver(Xc,Yc,U*1e6,V*1e6,'k','autoscale','on'); set(gca,'YDir','normal','DataAspectRatio',[1 1 1]); title('$E_{21}$','interpreter','latex','fontsize',16); colorbar; caxis([-5e-6 5e-6])
             subplot(2,4,7); imagesc(Xc,Yc,Euy); hold on; quiver(Xc,Yc,U*1e6,V*1e6,'k','autoscale','on'); set(gca,'YDir','normal','DataAspectRatio',[1 1 1]); title('$E_{12}$','interpreter','latex','fontsize',16); colorbar; caxis([-5e-6 5e-6])
             subplot(2,4,8); imagesc(Xc,Yc,Evy); hold on; quiver(Xc,Yc,U*1e6,V*1e6,'k','autoscale','on'); set(gca,'YDir','normal','DataAspectRatio',[1 1 1]); title('$E_{22}$','interpreter','latex','fontsize',16); colorbar; caxis([-5e-6 5e-6])
-            saveas(fig2,['./figs/' num2str(im_num,'Stress%03.f') '.jpg'],'jpg');
+            saveas(fig2,['./Stresses/figs/' num2str(im_num,'Stress%03.f') '.jpg'],'jpg');
             fig3 = figure(fig3);
             subplot(2,2,1); imagesc(Xc,Yc,DivSigXa); hold on; quiver(Xc,Yc,U*1e6,V*1e6,'k','autoscale','on'); set(gca,'YDir','normal','DataAspectRatio',[1 1 1]); title('$\nabla \cdot \sigma_{x}~Homogenized$','interpreter','latex','fontsize',16); colorbar; caxis([-0.7 0.7])
             subplot(2,2,2); imagesc(Xc,Yc,DivSigYa); hold on; quiver(Xc,Yc,U*1e6,V*1e6,'k','autoscale','on'); set(gca,'YDir','normal','DataAspectRatio',[1 1 1]); title('$\nabla \cdot \sigma_{y}~Homogenized$','interpreter','latex','fontsize',16); colorbar; caxis([-0.7 0.7])
             subplot(2,2,3); imagesc(Xc,Yc,DivSig1a); hold on; quiver(Xc,Yc,U*1e6,V*1e6,'k','autoscale','on'); set(gca,'YDir','normal','DataAspectRatio',[1 1 1]); title('$\nabla \cdot \sigma_{x}~Momentum$','interpreter','latex','fontsize',16); colorbar; caxis([-0.7 0.7])
             subplot(2,2,4); imagesc(Xc,Yc,DivSig2a); hold on; quiver(Xc,Yc,U*1e6,V*1e6,'k','autoscale','on'); set(gca,'YDir','normal','DataAspectRatio',[1 1 1]); title('$\nabla \cdot \sigma_{y}~Momentum$','interpreter','latex','fontsize',16); colorbar; caxis([-0.7 0.7])
-            saveas(fig3,['./figs/' num2str(im_num,'DivStress%03.f') '.jpg'],'jpg');
+            saveas(fig3,['./Stresses/figs/' num2str(im_num,'DivStress%03.f') '.jpg'],'jpg');
         end
         
     end

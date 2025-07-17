@@ -110,7 +110,8 @@ end
 f2(f1 ==0) = [];f1(f1 ==0) = [];
 G = digraph(f1,f2);
 [bins,binsizes] = conncomp(G,'Type','weak');
-Lia = ismember(FloeNumbers,Nums);Lia(1:Nbond) = 0;
+Lia = ismember(FloeNumbers,Nums);
+Lia(1:Nbond) = 0;
 clear poly
 for iii = 1:length(Floes)
     poly(iii) = polyshape(Floes(iii).c_alpha'+[Floes(iii).Xi Floes(iii).Yi]);
@@ -142,7 +143,7 @@ end
 set(0,'CurrentFigure',fig);
 xb=c2_boundary_poly.Vertices(:,1); xb(end+1)=xb(1);
 yb=c2_boundary_poly.Vertices(:,2); yb(end+1)=yb(1);
-plot(xb,yb, 'k-','linewidth',2);
+plot(xb,yb, 'k-','linewidth',2); % PLOTTING BROKEN BONDS HERE
 
 %plot(poly(1+Nbound:length(Floe)),'FaceColor',[0 0.2 0],'FaceAlpha',1,'EdgeAlpha',0);
 %error()

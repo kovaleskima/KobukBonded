@@ -111,8 +111,6 @@ for kk=1:length(Floe)
                 while inn < 3
                     XX = 0.975*dx/2*(2*rand(ceil(Nsubfloes*dx*dy/FloeNEW.area),1)-1)+(x(2)+x(1))/2;
                     YY = 0.975*dy/2*(2*rand(ceil(Nsubfloes*dx*dy/FloeNEW.area),1)-1)+(y(2)+y(1))/2;
-                    % X = 0.975*FloeNEW.rmax*(2*rand(ceil(Nsubfloes*FloeNEW.rmax^2/FloeNEW.area),1)-1);
-                    % Y = 0.975*FloeNEW.rmax*(2*rand(ceil(Nsubfloes*FloeNEW.rmax^2/FloeNEW.area),1)-1);
                     in_bnds = inpolygon(XX,YY,FloeNEW.c_alpha(1,:)',FloeNEW.c_alpha(2,:)');
                     Ys = YY(in_bnds); Xs = XX(in_bnds);
                     [d_min1] = p_poly_dist(Xs, Ys,FloeNEW.c_alpha(1,:)', FloeNEW.c_alpha(2,:)');
@@ -141,11 +139,7 @@ for kk=1:length(Floe)
                 for ii = 1:length(bb)
                     FloeNEW.bonds.Num{ii,1} = [];
                     FloeNEW.bonds.d{ii,1} = [];
-                    %         FloeNEW.bonds.Theta{ii,1} = [];
-                    %         poly = polyshape(b{ii}); polyNEW = subtract(polyOrig,poly);
-                    %         FloeNEW.bonds.In(ii,1) = logical(polyNEW.NumHoles);
                 end
-                %     FloeNEW.bonds.Vert = b';
                 A_rot=[cos(FloeNEW.alpha_i) -sin(FloeNEW.alpha_i); sin(FloeNEW.alpha_i) cos(FloeNEW.alpha_i)]; %rotation matrix
                 
                 Subfloes = A_rot*[FloeNEW.bonds.Xs'; FloeNEW.bonds.Ys'];

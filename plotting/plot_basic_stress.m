@@ -1,5 +1,5 @@
-function [fig] =plot_basic_stress(fig, Time,Floe,ocean,c2_boundary_poly,Nb,bonds)
-%This function creates plots of the floe state showing the stress and and
+function [fig] =plot_basic_stress(fig, Time,Floe,ocean,c2_boundary_poly,Nb)
+%This function creates plots of the floe state showing the stress and
 %thickness of the floes
 id ='MATLAB:polyshape:repairedBySimplify';
 warning('off',id)
@@ -60,26 +60,22 @@ S1 = mean(Shear);
 C2 = Shear/S1;
 C2(C2<2)=0;
 C2(C2>1)=1;
-%else
-%    C2 = (Shear-min(Shear))/(max(Shear)-min(Shear));
-%end
-% if max(Shear)>0
-plot([Floe.poly],'FaceColor',[0 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none');
-% plot(P_bond(1,:),P_bond(2,:),'kx','linewidth',2)
-% plot(poly_bnds,'FaceColor',[0 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none');
 
-% plot([Floes(C2==0).poly],'FaceColor',[0 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none');
-% plot([Floes(C2==1).poly],'FaceColor',[0 1 1]*0.7,'EdgeColor',[1 1 1]*0.2,'linestyle','none');
-% plot([Floe_bonds(C2_bnds==0).poly],'FaceColor',[0 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none');
-%plot([Floe_bonds(C2_bnds==1).poly],'FaceColor',[1 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none','FaceAlpha',0.6);%     for i = 1:length(Floe)
+if max(Shear)>0
+    plot([Floe.poly],'FaceColor',[0 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none');
+    plot(P_bond(1,:),P_bond(2,:),'kx','linewidth',2)
 
-%         plot(Floe(i).poly,'FaceColor',[1 0 0]*C2(i),'EdgeColor',[1 1 1]*0.2);
-% %         plot(Floe(i).poly,'FaceColor',[1 0 0]*Stress(i)/max(Stress),'EdgeColor',[1 1 1]*0.2);
-%     end
-% else
-%     plot([Floe.poly],'FaceColor',[1 0 0]*0,'EdgeColor',[1 1 1]*0.2);
-% %     plot([Floe.poly],'FaceColor','r','FaceAlpha',0.3,'EdgeColor',[1 1 1]*0.2);
-% end
+    plot([Floes(C2==0).poly],'FaceColor',[0 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none');
+    plot([Floes(C2==1).poly],'FaceColor',[0 1 1]*0.7,'EdgeColor',[1 1 1]*0.2,'linestyle','none');
+    plot([Floe_bonds(C2_bnds==0).poly],'FaceColor',[0 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none');
+    plot([Floe_bonds(C2_bnds==1).poly],'FaceColor',[1 0 0],'EdgeColor',[1 1 1]*0.2,'linestyle','none','FaceAlpha',0.6);%     for i = 1:length(Floe)
+
+    plot(Floe(i).poly,'FaceColor',[1 0 0]*C2(i),'EdgeColor',[1 1 1]*0.2);
+    plot(Floe(i).poly,'FaceColor',[1 0 0]*Stress(i)/max(Stress),'EdgeColor',[1 1 1]*0.2);
+else
+    plot([Floe.poly],'FaceColor',[1 0 0]*0,'EdgeColor',[1 1 1]*0.2);
+    plot([Floe.poly],'FaceColor','r','FaceAlpha',0.3,'EdgeColor',[1 1 1]*0.2);
+end
 if Nb > 0
     plot([Floe(1:Nb).poly],'FaceColor','k','FaceAlpha',0.3,'EdgeColor',[1 1 1]*0.2);
 end
