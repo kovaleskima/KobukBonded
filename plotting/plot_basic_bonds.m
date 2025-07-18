@@ -77,7 +77,7 @@ hold on;
 
 axis([ocean.Xo(1) ocean.Xo(end) ocean.Yo(1) ocean.Yo(end)]);
 
-colormap('gray'); clim([0 1]);
+colormap('gray'); caxis([0 1]);
 
 grid
 ax = gca;
@@ -128,7 +128,7 @@ yb=c2_boundary_poly.Vertices(:,2); yb(end+1)=yb(1);
 plot(xb,yb, 'k-','linewidth',2); % PLOTTING BROKEN BONDS HERE
 
 
-colormap('gray'); clim([0 1]);
+colormap('gray'); caxis([0 1]);
 axis([-Lx Lx -Lymax Lymax])
 
 set(gca,'Ydir','normal');

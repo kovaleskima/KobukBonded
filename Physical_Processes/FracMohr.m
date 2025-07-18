@@ -51,14 +51,14 @@ for ii = 1+Nb:length(Floe) %from 1+# of bonds to the number of floes (??)
                 bnd_tmp(kk).Stress = [0; 0]; %clear temporary bond stress
             end
             Sig1(count) = Sig1(count)/kk; Sig2(count) = Sig2(count)/kk; %something physics related, check sigma matrix
-            if abs(Sig1(count))>0.75e4
+            if abs(Sig1(count))>0.1e4 %lower bond strength from 0.75e4
 
                 Floe(ii).bonds(Lia) = [];
                 Lia = ismember(FloeNums,bnds(jj)); 
                 BndNums = cat(1,Floe(Lia).bonds.Num); 
                 Lia2 = ismember(BndNums,Floe(ii).num);
                 Floe(Lia).bonds(Lia2) = []; %if the floe is bonded and the bonds exist, clear it (break it)
-            elseif abs(Sig2(count))>0.75e4 
+            elseif abs(Sig2(count))>0.1e4
                 Floe(ii).bonds(Lia) = [];
                 Lia = ismember(FloeNums,bnds(jj));
                 BndNums = cat(1,Floe(Lia).bonds.Num);

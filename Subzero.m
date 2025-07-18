@@ -43,7 +43,7 @@ rho_ice=920;
 
 %Define 10m winds
 winds.x = ocean.Xocn; winds.y = ocean.Yocn;
-U0 = 0; V0 = -7;
+U0 = 5; V0 = -5;
 winds.u=U0*ones(size(ocean.Xocn));
 winds.v=V0*ones(size(ocean.Xocn));
 
@@ -56,9 +56,18 @@ c2_border = polyshape(2*[c2_boundary(1,:); c2_boundary(2,:)]'); c2_border = subt
 floebound = initialize_floe_values(c2_border, height,1);
 uright = 0; uleft = 0; %Define speeds that boundaries might be moving with
 
-%Initialize Floe state
-target_concentration = 1;
-load('KobukBonded/FloesKobuk.mat','Floe','Nbond','Nb');
+%Doing some dumb things to get the min floe size before adding variable concentration
+target_concentration = zeros(20, 20);  % initialize all to open ocean
+target_concentration(1:10, :) = 1.0;   % top half fully packed (rows 1–10)
+load('KobukBonded/FloesKobuk.mat','Floe','Nbond','Nb'); %get min floe size from old kobuk file
+if isfield(Floe,'poly')
+    Floe=rmfield(Floe,{'poly'});
+end
+min_floe_size = (4*Lx*Ly-sum(cat(1,Floe(1:Nb).area)))/20000; %define minimum floe size that can exist during model run
+
+% Redefine initial floe state how I actually want them
+NumFloes = 250;
+[Floe, Nb] = initial_concentration_kobuk(c2_boundary,target_concentration,height, NumFloes, min_floe_size);
 Floe0 = Floe;
 Nums = cat(1,Floe.num);
 for ii = 1+Nb:length(Floe)
@@ -67,11 +76,6 @@ for ii = 1+Nb:length(Floe)
     bonds1 = cat(1,Floe(ii).bonds.Num);
 end
 
-
-if isfield(Floe,'poly')
-    Floe=rmfield(Floe,{'poly'});
-end
-min_floe_size = (4*Lx*Ly-sum(cat(1,Floe(1:Nb).area)))/20000; %define minimum floe size that can exist during model run
 
 %Define Modulus for floe interactions
 global Modulus r_mean L_mean
@@ -114,7 +118,7 @@ Xc = (xc(1:end-1)+xc(2:end))/2; Yc = -(yc(1:end-1)+yc(2:end))/2;
 dissolvedNEW=zeros(Ny,Nx);
 
 %Initiailize Eulearian Data
-[eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,Nbond,c2_boundary,dt,PERIODIC);
+[eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,c2_boundary,PERIODIC);
 Vd = zeros(Ny,Nx,2);
 Vdnew=zeros(Ny, Nx);
 SigXX = zeros(Ny, Nx); SigYX = zeros(Ny, Nx);
@@ -225,7 +229,7 @@ while im_num<nSnapshots
     if mod(i_step,nDTOut)==0  %plot the state after a number of timesteps
         
 
-        [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,Nbond,c2_boundary,dt,PERIODIC);
+        [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,c2_boundary,PERIODIC);
         if ifPlot
             [fig] =plot_basic_bonds(fig,Floe,ocean,c2_boundary_poly,Nb,Nbond,PERIODIC);
             exportgraphics(fig,['./Floes_bnds/figs/' num2str(im_num,'%03.f') '.jpg']);
@@ -304,7 +308,7 @@ while im_num<nSnapshots
     [Floe,dissolvedNEW] = floe_interactions_all(Floe,floebound, uright, 0, ocean, winds, c2_boundary, dt, HFo,min_floe_size, Nx,Ny,Nb, dissolvedNEW,doInt,COLLISION, PERIODIC, RIDGING, RAFTING);
     
     if AVERAGE
-        [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,Nbond,c2_boundary,dt,PERIODIC);
+        [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,c2_boundary,PERIODIC);
         SigXX = SigXX+squeeze(eularian_data.stressxx); SigYX = SigYX+squeeze(eularian_data.stressyx);
         SigXY = SigXY+squeeze(eularian_data.stressxy); SigYY = SigYY+squeeze(eularian_data.stressyy);
         Eux = Eux+squeeze(eularian_data.strainux); Evx = Evx+squeeze(eularian_data.strainvx);
