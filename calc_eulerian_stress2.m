@@ -1,4 +1,4 @@
-function [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,~,c2_boundary,~,PERIODIC)
+function [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,c2_boundary,PERIODIC)
 %% Function to take information of all floes and average them over a corase grained area
 id = 'MATLAB:polyshape:boolOperationFailed';
 warning('off',id)

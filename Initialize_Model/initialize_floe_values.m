@@ -108,6 +108,8 @@ else
     FloeNEW.bonds.Fx_p = 0; 
     FloeNEW.bonds.Fy_p = 0; 
     FloeNEW.bonds.Stress = [0;0]; 
+    FloeNew.bonds.broken.X = [];
+    FloeNew.bonds.broken.Y = [];
 
 end
 
