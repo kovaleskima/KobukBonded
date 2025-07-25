@@ -1,4 +1,4 @@
-function FloeNEW = initialize_floe_values(poly1, height,Nsubfloes)
+function FloeNEW = initialize_floe_values(poly1, height, Nsubfloes)
 %%This function populates all the fields of the floes upon their creation
 
 rho_ice=920;

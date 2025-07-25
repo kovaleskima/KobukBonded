@@ -32,7 +32,7 @@ ifPlotStress = false;
 %add paths
 paths
 
-dt=10; %Time step in sec
+dt=1; %Time step in sec
 height.mean = 0.1;
 height.delta = 0;
 
@@ -43,7 +43,7 @@ rho_ice=920;
 
 %Define 10m winds
 winds.x = ocean.Xocn; winds.y = ocean.Yocn;
-U0 = 5; V0 = -5;
+U0 = 10; V0 = -10;
 winds.u=U0*ones(size(ocean.Xocn));
 winds.v=V0*ones(size(ocean.Xocn));
 
@@ -55,19 +55,13 @@ c2_boundary_poly = polyshape(c2_boundary');
 c2_border = polyshape(2*[c2_boundary(1,:); c2_boundary(2,:)]'); c2_border = subtract(c2_border, c2_boundary_poly);
 floebound = initialize_floe_values(c2_border, height,1);
 uright = 0; uleft = 0; %Define speeds that boundaries might be moving with
+min_floe_size = 2*Lx*Ly/10000;% Define the minimum floe size you want in initial configuration
 
-%Doing some dumb things to get the min floe size before adding variable concentration
-target_concentration = zeros(20, 20);  % initialize all to open ocean
-target_concentration(1:10, :) = 1.0;   % top half fully packed (rows 1–10)
-load('KobukBonded/FloesKobuk.mat','Floe','Nbond','Nb'); %get min floe size from old kobuk file
-if isfield(Floe,'poly')
-    Floe=rmfield(Floe,{'poly'});
-end
-min_floe_size = (4*Lx*Ly-sum(cat(1,Floe(1:Nb).area)))/20000; %define minimum floe size that can exist during model run
+target_concentration = 1;  % initialize all to open ocean
 
 % Redefine initial floe state how I actually want them
-NumFloes = 250;
-[Floe, Nb] = initial_concentration_kobuk(c2_boundary,target_concentration,height, NumFloes, min_floe_size);
+NumFloes = 1200;
+[Floe, bonds, Nb, Nbond] = initial_concentration_again(c2_boundary,target_concentration,height, NumFloes, 0, min_floe_size);
 Floe0 = Floe;
 Nums = cat(1,Floe.num);
 for ii = 1+Nb:length(Floe)
@@ -79,7 +73,7 @@ end
 
 %Define Modulus for floe interactions
 global Modulus r_mean L_mean
-Modulus = 2.5e3*(mean(sqrt(cat(1,Floe.area)))+min(sqrt(cat(1,Floe.area))));
+Modulus = 7.5e5*(mean(sqrt(cat(1,Floe.area)))+min(sqrt(cat(1,Floe.area))));
 r_mean = mean(sqrt(cat(1,Floe.area)));
 L = [];
 for ii = 1:length(Floe)
@@ -93,7 +87,7 @@ save('Modulus.mat','Modulus','r_mean','L_mean');
 
 dhdt = 1; %Set to 1 for ice to grow in thickness over time
 
-nDTOut=50; %Output frequency (in number of time steps)
+nDTOut=10; %Output frequency (in number of time steps)
 
 nSnapshots=100; %Total number of model snapshots to save
 
