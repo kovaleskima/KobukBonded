@@ -68,20 +68,12 @@ for ii = 1+Nb:length(Floe)
             bnd_tmp = Floe(ii).bonds(Lia);
             Sig1(count) = 0; Sig2(count) = 0;
             for kk = 1:length(bnd_tmp)
-                Sig1(count) = Sig1(count)+bnd_tmp(kk).Stress(1)/50; Sig2(count) = Sig2(count)+bnd_tmp(kk).Stress(2)/50;
+                Sig1(count) = Sig1(count)+bnd_tmp(kk).Stress(1); Sig2(count) = Sig2(count)+bnd_tmp(kk).Stress(2);
                 bnd_tmp(kk).Stress = [0; 0];
             end
             Sig1(count) = Sig1(count)/kk; Sig2(count) = Sig2(count)/kk;
-%                 xx= 1; xx(1) =[1 2];
-                %Floe(ii).bonds(jj).Stress=[0;0];
-%                 F_comp0 = [bnd_tmp.Xc-bnd_tmp.Xb; bnd_tmp.Yc-bnd_tmp.Yb];F_comp0 = F_comp0/vecnorm(F_comp0);
-%                 F_comp =A_rot*F_comp0;
-%                 F_bnd_dir = [a(jj,2); a(jj,3)]/sqrt(a(jj,2).^2+a(jj,3).^2);
-%                 F_bnd_c = sqrt(a(jj,2).^2+a(jj,3).^2)*dot(F_bnd_dir,F_comp);
-%                 F_bnd_s = sqrt(a(jj,2).^2+a(jj,3).^2-F_bnd_c.^2);
-%                 Sig1(count) = F_bnd_c/(bnd_tmp.L*Floe(ii).h); Sig2(count) = F_bnd_s/(bnd_tmp.L*Floe(ii).h);
-%            if abs(Sig1(count))>1.65e4
-            if abs(Sig1(count))>1e-7
+
+            if abs(Sig1(count))> 0.5e4
 %                 xx= 1; xx(1) =[1 2];
                 vals = find(Lia == 1);
                 Floe(ii).bonds(vals(1)).Num = nan;
@@ -93,7 +85,7 @@ for ii = 1+Nb:length(Floe)
                 vals = find(Lia2 == 1);
                 Floe(Lia).bonds(vals(1)).Num = nan;
                 Floe(Lia).bonds(vals(2)).Num = nan;
-            elseif abs(Sig2(count))>1e-7
+            elseif abs(Sig2(count))> 0.5e4
                 vals = find(Lia == 1);
                 Floe(ii).bonds(vals(1)).Num = nan;
                 Floe(ii).bonds(vals(2)).Num = nan;

@@ -111,6 +111,21 @@ for i=1:N  %do interactions with boundary in a separate parfor loop
 %                 Floe(i).potentialInteractions(k).bonds = cat(1,bonds(i).bond.Num);
                 Floe(i).potentialInteractions(k).bonds = Floe(j).bonds;
                 k=k+1;
+            elseif j>i && ismember(Floe(j).num,[Floe(i).bonds.Num])  
+                Floe(i).potentialInteractions(k).floeNum=j;
+                Floe(i).potentialInteractions(k).Num=Floe(j).num;
+                Floe(i).potentialInteractions(k).c=[Floe(j).c_alpha(1,:)+x(j); Floe(j).c_alpha(2,:)+y(j)];
+                Floe(i).potentialInteractions(k).Ui=u(j);
+                Floe(i).potentialInteractions(k).Vi=v(j);
+                Floe(i).potentialInteractions(k).h=Floe(j).h;
+                Floe(i).potentialInteractions(k).area=Floe(j).area;
+                Floe(i).potentialInteractions(k).Xi=x(j);
+                Floe(i).potentialInteractions(k).Yi=y(j);
+                Floe(i).potentialInteractions(k).ksi_ice = ksi(j);
+                Floe(i).potentialInteractions(k).alpha=Floe(j).alpha_i;
+%                 Floe(i).potentialInteractions(k).bonds = cat(1,bonds(i).bond.Num);
+                Floe(i).potentialInteractions(k).bonds = Floe(j).bonds;
+                k=k+1;
             end
             
         end
@@ -143,7 +158,6 @@ end
 kill = zeros(1,N0); transfer = kill;
 
 parfor i=1:N  %now the interactions could be calculated in a parfor loop!
-%for i=1:N  %now the interactions could be calculated in a parfor loop!
         
     c1=[Floe(i).c_alpha(1,:)+x(i); Floe(i).c_alpha(2,:)+y(i)];
 %     bondNums = cat(1,bonds(i).bond.Num);
@@ -152,11 +166,12 @@ parfor i=1:N  %now the interactions could be calculated in a parfor loop!
         for k=1:length(Floe(i).potentialInteractions)
             
             floeNum=Floe(i).potentialInteractions(k).floeNum;
+            Num = Floe(i).potentialInteractions(k).Num;
             
             [force_j,P_j, overlap] = floe_interactions_poly_con2(Floe(i),Floe(i).potentialInteractions(k),PERIODIC,Modulus,dt);%,c2_boundary,r_mean, L_mean);
             
             if sum(abs(force_j(:)))~=0
-                Floe(i).interactions=[Floe(i).interactions ; floeNum*ones(size(force_j,1),1) force_j P_j zeros(size(force_j,1),1) overlap'];
+                Floe(i).interactions=[Floe(i).interactions ; floeNum*ones(size(force_j,1),1) force_j P_j zeros(size(force_j,1),1) overlap' Num*ones(size(force_j,1),1)];
                 Floe(i).OverlapArea = sum(overlap)+Floe(i).OverlapArea;
             elseif isinf(overlap)
                 if i <= N0 && sign(overlap)>0 && i > Nb
@@ -198,7 +213,7 @@ parfor i=1:N  %now the interactions could be calculated in a parfor loop!
                 end
             end
             % boundary will be recorded as floe number Inf;
-            Floe(i).interactions=[Floe(i).interactions ; Inf*ones(size(force_b,1),1) force_b P_j zeros(size(force_b,1),1) overlap'];
+            Floe(i).interactions=[Floe(i).interactions ; Inf*ones(size(force_b,1),1) force_b P_j zeros(size(force_b,1),1) overlap' Floe(i).num];
             Floe(i).OverlapArea = sum(overlap)+Floe(i).OverlapArea;
             Floe(i).potentialInteractions(end+1).floeNum = Inf;
             Floe(i).potentialInteractions(end).c = c2_boundary;
@@ -233,7 +248,7 @@ for i=1:N %this has to be done sequentially
         for j=1:length(indx)
             
             if indx(j)<=N && indx(j)>i
-                Floe(indx(j)).interactions=[Floe(indx(j)).interactions; i -a(j,2:3) a(j,4:5) 0 a(j,7)];   % 0 is torque here that is to be calculated below
+                Floe(indx(j)).interactions=[Floe(indx(j)).interactions; i -a(j,2:3) a(j,4:5) 0 a(j,7) Floe(i).num];   % 0 is torque here that is to be calculated below
                 Floe(indx(j)).OverlapArea = Floe(indx(j)).OverlapArea + a(j,7);
 %                 m = size(Floe(indx(j)).potentialInteractions,2);
 %                 Floe(indx(j)).potentialInteractions(m+1).floeNum=i;

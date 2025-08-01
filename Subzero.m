@@ -43,7 +43,7 @@ rho_ice=920;
 
 %Define 10m winds
 winds.x = ocean.Xocn; winds.y = ocean.Yocn;
-U0 = 10; V0 = -10;
+U0 = 10; V0 = 0;
 winds.u=U0*ones(size(ocean.Xocn));
 winds.v=V0*ones(size(ocean.Xocn));
 
@@ -73,7 +73,7 @@ end
 
 %Define Modulus for floe interactions
 global Modulus r_mean L_mean
-Modulus = 7.5e5*(mean(sqrt(cat(1,Floe.area)))+min(sqrt(cat(1,Floe.area))));
+Modulus = 5.0e3*(mean(sqrt(cat(1,Floe.area)))+min(sqrt(cat(1,Floe.area))));
 r_mean = mean(sqrt(cat(1,Floe.area)));
 L = [];
 for ii = 1:length(Floe)

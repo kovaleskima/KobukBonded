@@ -21,7 +21,7 @@ if ~isempty(floe.interactions)
     aa(b==0,:) = []; [Ny,~] = size(aa);
     bonds = zeros(Ny,1); bonds(aa(:,7)==0) = 1;
     aa(~logical(bonds),:) = [];
-    nums = aa(:,1);
+    nums = aa(:,8);
     for jj = 1:length(floe.bonds)
         floe.bonds(jj).Fx_p = 0;
         floe.bonds(jj).Fy_p = 0;
