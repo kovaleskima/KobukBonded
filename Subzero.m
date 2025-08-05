@@ -32,7 +32,7 @@ ifPlotStress = false;
 %add paths
 paths
 
-dt=1; %Time step in sec
+dt=0.1; %Time step in sec
 height.mean = 0.1;
 height.delta = 0;
 
@@ -61,7 +61,7 @@ target_concentration = 1;  % initialize all to open ocean
 
 % Redefine initial floe state how I actually want them
 NumFloes = 1200;
-[Floe, bonds, Nb, Nbond] = initial_concentration_again(c2_boundary,target_concentration,height, NumFloes, 0, min_floe_size);
+[Floe, bonds, Nb, Nbond] = initial_concentration(c2_boundary,target_concentration,height, NumFloes, 0, min_floe_size);
 Floe0 = Floe;
 Nums = cat(1,Floe.num);
 for ii = 1+Nb:length(Floe)
@@ -89,7 +89,7 @@ dhdt = 1; %Set to 1 for ice to grow in thickness over time
 
 nDTOut=10; %Output frequency (in number of time steps)
 
-nSnapshots=100; %Total number of model snapshots to save
+nSnapshots=500; %Total number of model snapshots to save
 
 nDT=nDTOut*nSnapshots; %Total number of time steps
 
