@@ -16,7 +16,7 @@ x1 = [-Lx/2 0 0 -Lx/2]; y1 = [Ly/2 Ly/2 5e3 5e3]; B1 = polyshape(x1,y1);
 x2 = [Lx/2 0 0 Lx/2]; y2 = [Ly/2 Ly/2 5e3 5e3]; B2 = polyshape(x2,y2);
 x3 = [-Lx/2 0 0 -Lx/2]; y3 = [-Ly/2 -Ly/2 5e3 5e3]; B3 = polyshape(x3,y3);
 x4 = [Lx/2 0 0 Lx/2]; y4 = [-Ly/2 -Ly/2 5e3 5e3]; B4 = polyshape(x4,y4);
-load('kobuk_poly.mat','lake_with_runoff','wholelake')
+load('kobuk_one_floe.mat','lakeShape','wholelake')
 R(1) = subtract(B1,wholelake); R(2) = subtract(B2,wholelake); R(3) = subtract(B3,wholelake); R(4) = subtract(B4,wholelake);
 
 nx=40; ny=4;%fix(Nx*LyO/LxO);
@@ -64,7 +64,7 @@ for jj = 1:Ny
                 for m = 1:length(b)
                     if ~isnan(b{m})
                         pnew = polyshape(b{m});
-                        pnow = intersect(pnew,lake_with_runoff);
+                        pnow = intersect(pnew,lakeShape);
                         if area(pnow)>0
                             polyfloe(count) = pnow;
                             count = count + 1;

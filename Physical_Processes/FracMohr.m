@@ -1,4 +1,6 @@
 function [Floe,Princ] = FracMohr(Floe,Nb,min_floe_size,concentration)
+
+%save('fracmohr_failing.mat', 'Floe', 'Nb', 'min_floe_size', 'concentration');
 %Use Mohr's cone to determine which floes are fractured
 %   If Principal stresses are outside the cone then the floes are fractured
 rho_ice=920;

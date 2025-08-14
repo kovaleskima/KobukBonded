@@ -32,7 +32,7 @@ ifPlotStress = false;
 %add paths
 paths
 
-dt=0.1; %Time step in sec
+dt=1.0; %Time step in sec
 height.mean = 0.1;
 height.delta = 0;
 
@@ -73,7 +73,7 @@ end
 
 %Define Modulus for floe interactions
 global Modulus r_mean L_mean
-Modulus = 5.0e3*(mean(sqrt(cat(1,Floe.area)))+min(sqrt(cat(1,Floe.area))));
+Modulus = 1.0e3*(mean(sqrt(cat(1,Floe.area)))+min(sqrt(cat(1,Floe.area))));
 r_mean = mean(sqrt(cat(1,Floe.area)));
 L = [];
 for ii = 1:length(Floe)
@@ -85,11 +85,11 @@ save('Modulus.mat','Modulus','r_mean','L_mean');
 
 %%
 
-dhdt = 1; %Set to 1 for ice to grow in thickness over time
+dhdt = 0; %Set to 1 for ice to grow in thickness over time
 
 nDTOut=10; %Output frequency (in number of time steps)
 
-nSnapshots=500; %Total number of model snapshots to save
+nSnapshots=200; %Total number of model snapshots to save
 
 nDT=nDTOut*nSnapshots; %Total number of time steps
 
