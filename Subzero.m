@@ -33,6 +33,7 @@ ifPlotStress = false;
 paths
 
 dt=1.0; %Time step in sec
+dt=1.0; %Time step in sec
 
 height.mean = 0.1;
 height.delta = 0;
@@ -86,11 +87,11 @@ save('Modulus.mat','Modulus','r_mean','L_mean');
 
 %%
 
-dhdt = 1; %Set to 1 for ice to grow in thickness over time
+dhdt = 0; %Set to 1 for ice to grow in thickness over time
 
 nDTOut=10; %Output frequency (in number of time steps)
 
-nSnapshots=500; %Total number of model snapshots to save
+nSnapshots=200; %Total number of model snapshots to save
 
 nDT=nDTOut*nSnapshots; %Total number of time steps
 
