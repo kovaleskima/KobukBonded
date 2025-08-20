@@ -3,7 +3,7 @@ import os
 from glob import glob
 
 # === CONFIGURATION ===
-input_folder = './figs'   # <- change this to your folder
+input_folder = './Floes_bnds/figs'   # <- change this to your folder
 output_file = 'animation.mp4'
 frame_rate = 10  # frames per second
 

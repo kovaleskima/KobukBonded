@@ -1,0 +1,53 @@
+Running simulation with stiffness=0.1e3
+[Warning: Private directories not allowed in MATLAB path:
+/mmfs1/gscratch/scrubbed/makov/KobukBonded/./private] 
+[> In path (line 109)
+In addpath>doPathAddition (line 116)
+In addpath (line 80)
+In paths (line 8)
+In Subzero (line 33)] 
+ 
+Exiting: Maximum number of function evaluations has been exceeded
+         - increase MaxFunEvals option.
+         Current function value: 566.633181 
+
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to parallel pool with 1 workers.
+ 
+Elapsed time is 0.022953 seconds.
+0 timesteps comleted
+number of collisions: 182
+ 
+[Warning: MATLAB has disabled some advanced graphics rendering features by
+switching to software OpenGL. For more information, click <a
+href="matlab:opengl('problems')">here</a>.] 
+ 
+Elapsed time is 137.130879 seconds.
+10 timesteps comleted
+number of collisions: 6790
+ 
+ 
+Elapsed time is 129.444531 seconds.
+20 timesteps comleted
+number of collisions: 6794
+ 
+ 
+Elapsed time is 125.810308 seconds.
+30 timesteps comleted
+number of collisions: 6833
+ 
+ 
+Elapsed time is 122.925076 seconds.
+40 timesteps comleted
+number of collisions: 6858
+ 
+ 
+Elapsed time is 122.804831 seconds.
+50 timesteps comleted
+number of collisions: 6871
+ 
+ 
+Elapsed time is 122.139959 seconds.
+60 timesteps comleted
+number of collisions: 6866
+ 

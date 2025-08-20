@@ -13,7 +13,7 @@ r1 = sqrt(floe1.area); E1 = Modulus;%if floe1.bonds.bowtie == 1; E1 = floe1.bond
 r2 = sqrt(floe2.area); E2 = Modulus;%if floe2.bonds.bowtie == 1; E2 = floe2.bonds.L/r_bond*Modulus*r_mean/r2; else; E2 = Modulus; end
 Force_factor=E1*E2*h1*h2/(E1*h1*r2+E2*h2*r1); overlap = 0;
 
-BondNum = cat(1,floe1.bonds.Num); damping=2.5;
+BondNum = cat(1,floe1.bonds.Num); damping=5;
 
 if isfield(floe2,'alive')
   Force_factor=E1*h1/r1;
@@ -73,7 +73,7 @@ if isempty(P) || size(P,2)<2 || isinf(overlap) || isempty(Xi)
     pcenter=[0 0];
     pcontact=[0 0];    
 else
-    
+  if ~ismember(floeNum,BondNum)
     N1 = length(c1)-1; N2 = length(c2)-1;
     Amin =  min([N1,N2])*100/1.75;
 %     if abs(length(Ar)-length(Xi)) > 0
@@ -190,7 +190,11 @@ else
         overlap(k) = Ar(k);
 
     end
-
+  else
+    force_1=[0 0];
+    pcenter=[0 0];
+    pcontact=[0 0];
+  end
 end
 
 
@@ -199,8 +203,9 @@ if ismember(floeNum,BondNum) %&& sum(abs(force_1(:)))~=0
     L = floe1.bonds(Num1).L; %r_bond=floe1.bonds(Num1).r_bnd;
     E1 = Modulus; E2 = Modulus;
 %    E1 = L/L_mean*Modulus*r_mean/r_bond; E2 = Modulus;
-%    Force_factor=E1*E2*h1*h2/(E1*h1*r2+E2*h2*r1)/30;
-    Force_factor=E1*E2*h1*h2/(E1*h1*r2+E2*h2*r1)/100;
+%    Force_factor=E1*E2*h1*h2/(E1*h1*r2+E2*h2*r1)/25;
+%    Force_factor=E1*E2*h1*h2/(E1*h1*r2+E2*h2*r1)/75; %figs3
+    Force_factor=E1*E2*h1*h2/(E1*h1*r2+E2*h2*r1)/10; %figs2
     A_rot1=[cos(floe1.alpha_i) -sin(floe1.alpha_i); sin(floe1.alpha_i) cos(floe1.alpha_i)];
     A_rot2=[cos(floe2.alpha) -sin(floe2.alpha); sin(floe2.alpha) cos(floe2.alpha)];
 %     Xb1 = floe1.bonds(Num1).Xb; Yb1 = floe1.bonds(Num1).Yb; P_bond1 = A_rot1*[Xb1;Yb1];

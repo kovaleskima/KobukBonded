@@ -1,4 +1,4 @@
-function [Floe,Princ] = FracMohr(Floe,Nb,min_floe_size,concentration)
+function [Floe,Princ] = FracMohr(Floe,Nb,min_floe_size,concentration, bond_threshold)
 %Use Mohr's cone to determine which floes are fractured
 %   If Principal stresses are outside the cone then the floes are fractured
 rho_ice=920;
@@ -73,8 +73,7 @@ for ii = 1+Nb:length(Floe)
             end
             Sig1(count) = Sig1(count)/kk; Sig2(count) = Sig2(count)/kk;
 
-            if abs(Sig1(count))> 0.5e4
-%                 xx= 1; xx(1) =[1 2];
+            if abs(Sig1(count))> bond_threshold
                 vals = find(Lia == 1);
                 Floe(ii).bonds(vals(1)).Num = nan;
                 Floe(ii).bonds(vals(2)).Num = nan;
@@ -85,7 +84,7 @@ for ii = 1+Nb:length(Floe)
                 vals = find(Lia2 == 1);
                 Floe(Lia).bonds(vals(1)).Num = nan;
                 Floe(Lia).bonds(vals(2)).Num = nan;
-            elseif abs(Sig2(count))> 0.5e4
+            elseif abs(Sig2(count))> bond_threshold
                 vals = find(Lia == 1);
                 Floe(ii).bonds(vals(1)).Num = nan;
                 Floe(ii).bonds(vals(2)).Num = nan;

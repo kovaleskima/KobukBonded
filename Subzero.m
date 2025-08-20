@@ -32,7 +32,8 @@ ifPlotStress = false;
 %add paths
 paths
 
-dt=0.1; %Time step in sec
+dt=1.0; %Time step in sec
+
 height.mean = 0.1;
 height.delta = 0;
 
@@ -73,7 +74,7 @@ end
 
 %Define Modulus for floe interactions
 global Modulus r_mean L_mean
-Modulus = 5.0e3*(mean(sqrt(cat(1,Floe.area)))+min(sqrt(cat(1,Floe.area))));
+Modulus = stiffness*(mean(sqrt(cat(1,Floe.area)))+min(sqrt(cat(1,Floe.area))));
 r_mean = mean(sqrt(cat(1,Floe.area)));
 L = [];
 for ii = 1:length(Floe)
@@ -334,7 +335,7 @@ while im_num<nSnapshots
 
     if FRACTURES && mod(i_step,50)==0 %&& im_num > 40
         compactness = sum(cat(1,Floe.area))/area(c2_boundary_poly);
-        [Floe,Princ] = FracMohr(Floe,Nb,min_floe_size,compactness);
+        [Floe,Princ] = FracMohr(Floe,Nb,min_floe_size,compactness, bond_threshold);
     end
  
     if CORNERS && mod(i_step,10)==0
