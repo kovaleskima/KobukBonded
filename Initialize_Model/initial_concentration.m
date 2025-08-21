@@ -1,4 +1,4 @@
-function [Floe,bonds,Nbound,Nbond] = initial_concentration(c2_boundary,target_concentration,height, NumFloes, NumSubfloes, min_floe_size)
+function [Floe,bonds,Nbound,Nbond] = initial_concentration(c2_boundary,target_concentration,height, NumFloes, NumSubfloes, min_floe_size,ISLANDS)
 %% This function is used to generate the initial floe field
 
 %Identify the grids to align with the concentrations specified by the input
@@ -9,15 +9,18 @@ y = min(c2_boundary(2,:)):(max(c2_boundary(2,:))-min(c2_boundary(2,:)))/Ny:max(c
 c2_boundary_poly = polyshape(c2_boundary');
 dx = x(2)-x(1);
 dy = y(2)-y(1);
-Lx = max(x)*2; Ly= max(y)*2;
 
 %Create floes that act as boundaries and wont move
-x1 = [-Lx/2 0 0 -Lx/2]; y1 = [Ly/2 Ly/2 5e3 5e3]; B1 = polyshape(x1,y1);
-x2 = [Lx/2 0 0 Lx/2]; y2 = [Ly/2 Ly/2 5e3 5e3]; B2 = polyshape(x2,y2);
-x3 = [-Lx/2 0 0 -Lx/2]; y3 = [-Ly/2 -Ly/2 5e3 5e3]; B3 = polyshape(x3,y3);
-x4 = [Lx/2 0 0 Lx/2]; y4 = [-Ly/2 -Ly/2 5e3 5e3]; B4 = polyshape(x4,y4);
-load('kobuk_poly_2025.mat','lakeShape','wholelake')
-R(1) = subtract(B1,wholelake); R(2) = subtract(B2,wholelake); R(3) = subtract(B3,wholelake); R(4) = subtract(B4,wholelake);
+% x1 = [Lx/2 Lx/2 1.5e4 1.5e4]; y1 = [-Ly/2 -1e4 -Ly/2+3e5 -Ly/2];
+% B1 = polyshape(x1, y1);
+% B2 = polyshape(-x1, y1);
+% x2 = [Lx/2 Lx/2 -Lx/2 -Lx/2]; y2 = [-1e5 -Ly/2 -Ly/2 -1e5];
+% B3 = polyshape(x2,y2);
+% Floe1 = initialize_floe_values(B1,height,0,SUBFLOES);
+% Floe2 = initialize_floe_values(B2,height,0,SUBFLOES);
+% bound = subtract(c2_boundary_poly, B1);
+% bound = subtract(bound, B2);
+%Floe = [Floe1 Floe2];
 
 nx=40; ny=4;%fix(Nx*LyO/LxO);
 xc = min(c2_boundary(1,:)):(max(c2_boundary(1,:))-min(c2_boundary(1,:)))/nx:max(c2_boundary(1,:));
@@ -30,8 +33,24 @@ Floe = [];
 FloeBnds = [];
 FloeNum = 1;
 
+%Remove islands
+load( './NaresSegments','borders','islands')
+land = union([borders]);
+%for ii = 1:length(islands)
+%    [xi(ii),yi(ii)] = centroid(islands(ii));
+%end
+if ISLANDS
+    % R(1:4) = [];
+    R = [islands; borders];
+else
+    R = borders;
+end
+isles = union([islands]);
+
+bound = c2_boundary_poly;
 for ii = 1:length(R)
-    FloeNEW = initialize_floe_values(R(ii),height,NumSubfloes);
+    FloeNEW = initialize_floe_values(R(ii),height,1);
+    bound = subtract(bound, FloeNEW.poly);
     Floe = [Floe FloeNEW];
 end
 Nbound = length(Floe);
@@ -39,14 +58,14 @@ for ii = 1:Nbound
     Floe(ii).poly = polyshape(Floe(ii).c_alpha'+[Floe(ii).Xi Floe(ii).Yi]);
 end
 
+
 %Loop through all the regions of the domain to create new floes
 for jj = 1:Ny
     for ii = 1:Nx
         if c(jj,ii)>0
             boundary = polyshape([x(ii) x(ii) x(ii+1) x(ii+1)], [y(jj) y(jj+1) y(jj+1) y(jj)]);
             boundary = intersect(boundary,c2_boundary_poly);
-            frac = area(boundary)/(area(boundary)-sum(area(R)));
-            N = ceil(NumFloes*frac/c(jj,ii));
+            N = ceil(NumFloes*area(boundary)/area(c2_boundary_poly)/c(jj,ii));
 %             poly = intersect(bound,boundary); %Use these when having
 %             boundaries
 %             N = 4*ceil(NumFloes*area(poly)/area(bound)/c(jj,ii)); %Use these when having
@@ -54,38 +73,58 @@ for jj = 1:Ny
             if N == 1
                 Floe = initialize_floe_values(c2_boundary_poly,height,NumSubfloes);
             else
-                X = 0.975*dx/2*(2*rand(N,1)-1)+(x(ii)+x(ii+1))/2;
-                Y = 0.975*dy/2*(2*rand(N,1)-1)+(y(jj)+y(jj+1))/2;
+                X = 0.995*dx/2*(2*rand(N,1))+(x(ii)+x(ii+1))/2;
+                Y = 0.995*dy/2*(2*(rand(N,1)-0.5));
                 in = inpolygon(X,Y,boundary.Vertices(:,1),boundary.Vertices(:,2));
                 X = X(in); Y = Y(in);
-
+                for kk = 1:length(islands)
+                    in = inpolygon(X,Y,islands(kk).Vertices(:,1),islands(kk).Vertices(:,2));
+                    X = X(~in); Y = Y(~in);
+                end
+                %X = [X; xi']; Y = [Y; yi'];
+                %             for i = 1:2%nx
+                %                 X = [(-1)^i*dx/2 (-1)^i*dx/2 0 0];%xx(:,i:i+1); X = X(:);
+                %                 Y = [-dy/2 dy/2 dy/2 -dy/2];%Y = yy(:,i:i+1); Y = Y(:);
+                %                 b{i} = [X',Y'];
+                %             end
                 [~, b,~,~,~] = polybnd_voronoi([X Y],boundary.Vertices);
-                count = 1; clear polyfloe
+                %             [~, b,~,~,~] = polybnd_voronoi([X Y],boundary.Vertices); %%Use these when having
+                %             boundaries
+                
+                for iii = 1:length(b)
+                    bonds(iii).bond = [];
+                end
+                r = sqrt(min_floe_size);
+                clear poly; count = 1; clear polyfloe;
                 for m = 1:length(b)
-                    if ~isnan(b{m})
-                        pnew = polyshape(b{m});
-                        pnow = intersect(pnew,lakeShape);
-                        if area(pnow)>0
-                            polyfloe(count) = pnow;
+                    poly = polyshape(b{m});
+                    poly = subtract(poly,land);
+                    if area(poly)>0
+                        if length(regions(poly))>1
+                            R2 = regions(poly);
+                                for jj = 1:length(R2)
+                                    polyfloe(count) = R2(jj);
+                                    count = count + 1;
+                                end
+                        else
+                            polyfloe(count) = poly;
                             count = count + 1;
                         end
                     end
                 end
-                
-                %load('upper_polygons.mat','polyfloe')
-                poly = polyfloe;
-                
-                for iii = 1:length(polyfloe)
+%                save('./Initialize_Model/poly_noislands.mat','polyfloe');
+%                error()
+
+                load('./Initialize_Model/poly_noislands_highres.mat','polyfloe_ni_hr');
+                poly = polyfloe_ni_hr;
+                poly = [[Floe.poly]'; poly'];
+                for iii = 1:length(poly)
                     bonds(iii).bond = [];
                 end
-                r = sqrt(min_floe_size);
 
-%                 xx = 1; xx(1) =[1 2];
-%                 load('./Initialize_Model/polystart.mat','poly');
-%                load('./Initialize_Model/pstart.mat','poly');
-%                 poly = polys;
+                
                 Nf = 1:length(poly);%randperm(length(b));
-                for iii = 1:length(poly)-1
+                for iii = 1+Nbound:length(poly)-1
                     for jjj = iii+1:length(poly)
                         [k,dist] = dsearchn(poly(iii).Vertices,poly(jjj).Vertices);
                         if length(k(dist<0.1)) > 1
@@ -182,7 +221,7 @@ for jj = 1:Ny
 %                     end
 %                 end
                 polyFloes = poly;
-                for kk= 1:length(polyFloes)
+                for kk= 1+Nbound:length(polyFloes)
                     polyFloesNew = polyFloes(kk);
                     bond_tmp = bonds(kk).bond;
                     new_bnds = [];
@@ -261,7 +300,7 @@ for jj = 1:Ny
     end
 end
 Nums = cat(1,Floe.num);
-for ii = Nbound+1:length(Floe)
+for ii = 1+Nbound:length(Floe)
     floe = Floe(ii);
     bnds = unique(cat(1,Floe(ii).bonds.Num));
     bonds1 = cat(1,Floe(ii).bonds.Num);

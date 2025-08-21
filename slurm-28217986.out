@@ -1,0 +1,18 @@
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2021 The MathWorks, Inc.
+                  R2021a (9.10.0.1602886) 64-bit (glnxa64)
+                             February 17, 2021
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+[Warning: Private directories not allowed in MATLAB path:
+/mmfs1/home/bpm5026/Kennedy_Paper_bondsonly/./private] 
+[> In path (line 109)
+In addpath (line 86)
+In paths (line 8)
+In SubzeroClean (line 40)] 
+Starting parallel pool (parpool) using the 'local' profile ...
+[2025-08-19T07:30:19.851] error: *** JOB 28217986 ON n3432 CANCELLED AT 2025-08-19T07:30:19 DUE to SIGNAL Terminated ***
