@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=Subzero_Nares_Bonds
+#SBATCH --job-name=Subzero_Kobuk_Bonds
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=bpm5026@uw.edu
+#SBATCH --mail-user=makov@uw.edu
 
 #SBATCH --account=coenv
 #SBATCH --partition=cpu-g2
@@ -12,13 +12,13 @@
 #SBATCH --gpus=0
 #SBATCH --time=07-00:00:00 
 
-#SBATCH --chdir=/mmfs1/home/bpm5026/Kennedy_Paper_bondsonly
+#SBATCH --chdir=/mmfs1/home/makov/KobukBonded
 #SBATCH --export=all
 #SBATCH --output=slurm-%j.out
 #SBATCH --error=slurm-%j.out
 
 # Modules to use (optional).
-module load matlab/r2021a
+module load matlab
 
 # Your programs to run.
 matlab -nodisplay -r "SubzeroClean;quit;"

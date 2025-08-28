@@ -24,7 +24,7 @@ KEEP_MIN = true;
 
 SIMPLIFY = false;
 
-ISLANDS = true;
+ISLANDS = false;
 
 ifPlot = true; %Plot floe figures or not?
 
@@ -64,15 +64,9 @@ floebound = initialize_floe_values(c2_border, height,1);
 uright = 0; uleft = 0; %Define speeds that boundaries might be moving with
 min_floe_size = 2*Lx*Ly/10000;% Define the minimum floe size you want in initial configuration
 
-%Initialize Floe state
 target_concentration = [1;0];
-%[Floe, Nb] = initial_concentration_Nares(c2_boundary,target_concentration,height, 350, min_floe_size,ISLANDS)
-%[Floe,bonds, Nb,Nbond] = initial_concentration(c2_boundary,target_concentration,height,500,1,min_floe_size,ISLANDS);
-%save('FloeInit.mat','Floe','bonds','Nbond','Nb');
-% load FloeInit
-%error()
-load('FloesIslandsLowres.mat','Floe','Nb','Nbond')
-%load('./FloeInitialNoIslands.mat','Floe','Nbond','Nb');
+[Floe, bonds, Nb, Nbond] = initial_concentration_Kobuk(c2_boundary,target_concentration,height,1,10,min_floe_size);
+
 Floe0 = Floe;
 Nums = cat(1,Floe.num);
 for ii = 1+Nb:length(Floe)
@@ -91,39 +85,14 @@ for ii = 1+Nb:length(Floe)
         end
     end
 end
-%Floe(1).Ui = 0.5; %Floe(2).Ui = -0.5;
-%Floe(1).Vi = 0.1; Floe(2).Vi = -0.5;
-% Floe(1).ksi_ice = 0.01; Floe(2).ksi_ice = 0;
-% Floe(2) = [];
-% save('Floe0.mat','Floe','Nb','Nbond');
-% xx = 1; xx(1) =[1 2];
-% Floe0 = Floe;
-% save('Floe0.mat','Floe0');
-%load('./Floes_bnds/Floe0000001.mat','Floe','Nbond','Nb');
-% for jj = 1+Nbond:length(Floe)
-%     BondNum = Floe(jj).bonds.BondNum;
-%     if ~isempty(Floe(jj).bonds.poly)
-%         R = regions(polyshape(Floe(jj).bonds.poly));
-%         if ~(length(R)==length(BondNum))
-%             xx = 1; xx(1) =[1 2];
-%         end
-%     end
-% end
+
 
 if isfield(Floe,'poly')
     Floe=rmfield(Floe,{'poly'});
 end
-% Floe = Floe(Nbond+1:end);
 min_floe_size = (4*Lx*Ly-sum(cat(1,Floe(1:Nb).area)))/20000; %define minimum floe size that can exist during model run
 
-% load Floe0; Nbond = 1;
-% Floe(2).Ui = 0.15;
-% Floe(3).Ui = -0.15;
 
-% Ly = max(c2_boundary(2,:));Lx = 1.1*max(c2_boundary(1,:));
-% c2_boundary =[-Lx -Lx Lx Lx; -Ly Ly Ly -Ly];
-% c2_boundary_poly = polyshape(c2_boundary');
-% c2_border = polyshape(2*[-Lx -Lx Lx Lx; -Ly Ly Ly -Ly]'); c2_border = subtract(c2_border, c2_boundary_poly);
 floebound = initialize_floe_values(c2_border, height,1);
 
 %Define Modulus for floe interactions
@@ -143,15 +112,15 @@ save('Modulus.mat','Modulus','r_mean','L_mean');
 
 dhdt = 1; %Set to 1 for ice to grow in thickness over time
 
-nDTOut=1500; %Output frequency (in number of time steps)
+nDTOut=10; %Output frequency (in number of time steps)
 
-nSnapshots=300; %Total number of model snapshots to save
+nSnapshots=200; %Total number of model snapshots to save
 
 nDT=nDTOut*nSnapshots; %Total number of time steps
 
 nSimp = 20;
 
-nPar = 36; %Number of workers for parfor
+nPar = 1; %Number of workers for parfor
 poolobj = gcp('nocreate'); % If no pool, do not create new one.
 if isempty(poolobj)
    parpool(nPar);
@@ -215,22 +184,10 @@ if ~exist('Time','var')
     fig3 = figure;
 end
 
-%im_num=09;
-%load(['./Floes_bnds/Floe' num2str(im_num,'%07.f') '.mat']);
-%i_step = (im_num-1)*nDTOut;
-% % xb = c2_boundary(1,:);
-% % yb = c2_boundary(2,:);
-% % % yb = yb - 2.5*[-1 1 1 -1];
-% % % c2_boundary = [xb; yb];
-% % Ly = max(c2_boundary(2,:));Lx = max(c2_boundary(1,:));
-% % c2_boundary_poly = polyshape(c2_boundary');
-% % c2_border = scale(c2_boundary_poly,2); c2_border = subtract(c2_border, c2_boundary_poly);
-% % floebound = initialize_floe_values(c2_border, height, 1);
-%Time = i_step*dt;
 
 %% Solving for floe trajectories
 tic; 
-% while side < 2.5
+
 while im_num<nSnapshots
 
     if mod(i_step,10)==0        
@@ -306,7 +263,6 @@ while im_num<nSnapshots
         [eularian_data] = calc_eulerian_stress2(Floe,Nx,Ny,Nb,Nbond,c2_boundary,dt,PERIODIC);
         if ifPlot
             [fig] =plot_basic_bonds(fig,Floe,ocean,c2_boundary_poly,Nb,Nbond,PERIODIC);
-%            [fig] =plot_basic(fig, Time,Floe,ocean,c2_boundary_poly,Nb,PERIODIC);
             exportgraphics(fig,['./Floes_bnds/figs/' num2str(im_num,'%03.f') '.jpg']);
         end
         
@@ -380,7 +336,7 @@ while im_num<nSnapshots
     
     
     if mod(i_step,nDTOut)==0
-        save(['/mmfs1/gscratch/coenv/bpm5026/Kennedy_Paper_bondsonly/Floe' num2str(im_num,'%07.f') '.mat'],'Floe','Nb','Nbond','eularian_data','SigXXa','SigXYa', 'SigYYa','U','V','dU','Fx','mass','c2_boundary');
+        save(['./output/Floe' num2str(im_num,'%07.f') '.mat'],'Floe','Nb','Nbond','eularian_data','SigXXa','SigXYa', 'SigYYa','U','V','dU','Fx','mass','c2_boundary');
         SigXX = zeros(Ny, Nx); SigYX = zeros(Ny, Nx);
         SigXY = zeros(Ny, Nx); SigYY = zeros(Ny, Nx);
         DivSigX = zeros(Ny, Nx); DivSig1 = zeros(Ny, Nx);
@@ -443,14 +399,6 @@ while im_num<nSnapshots
 
 
     if FRACTURES && mod(i_step,50)==0 %&& im_num > 40
-%         if im_num > 40
-%             xx = 1; xx(1) =[1 2];
-%         end
-%         for ii = 1:length(bonds)
-%             for jj = 1:length(bonds(ii).bond)
-%                 bonds(ii).bond(jj).Stress = bonds(ii).bond(jj).Stress/250;
-%             end
-%         end
         compactness = sum(cat(1,Floe.area))/area(c2_boundary_poly);
         [Floe,Princ] = FracMohrNew(Floe,Nb,min_floe_size,compactness);
 %         Areas = cat(1,Floe.area);

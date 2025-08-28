@@ -10,17 +10,13 @@ c2_boundary_poly = polyshape(c2_boundary');
 dx = x(2)-x(1);
 dy = y(2)-y(1);
 
+Lx = max(x)*2; Ly= max(y)*2;
+
 %Create floes that act as boundaries and wont move
-% x1 = [Lx/2 Lx/2 1.5e4 1.5e4]; y1 = [-Ly/2 -1e4 -Ly/2+3e5 -Ly/2];
-% B1 = polyshape(x1, y1);
-% B2 = polyshape(-x1, y1);
-% x2 = [Lx/2 Lx/2 -Lx/2 -Lx/2]; y2 = [-1e5 -Ly/2 -Ly/2 -1e5];
-% B3 = polyshape(x2,y2);
-% Floe1 = initialize_floe_values(B1,height,0,SUBFLOES);
-% Floe2 = initialize_floe_values(B2,height,0,SUBFLOES);
-% bound = subtract(c2_boundary_poly, B1);
-% bound = subtract(bound, B2);
-%Floe = [Floe1 Floe2];
+x1 = [-Lx/2 0 0 -Lx/2]; y1 = [Ly/2 Ly/2 5e3 5e3]; B1 = polyshape(x1,y1);
+x2 = [Lx/2 0 0 Lx/2]; y2 = [Ly/2 Ly/2 5e3 5e3]; B2 = polyshape(x2,y2);
+x3 = [-Lx/2 0 0 -Lx/2]; y3 = [-Ly/2 -Ly/2 5e3 5e3]; B3 = polyshape(x3,y3);
+x4 = [Lx/2 0 0 Lx/2]; y4 = [-Ly/2 -Ly/2 5e3 5e3]; B4 = polyshape(x4,y4);
 
 nx=40; ny=4;%fix(Nx*LyO/LxO);
 xc = min(c2_boundary(1,:)):(max(c2_boundary(1,:))-min(c2_boundary(1,:)))/nx:max(c2_boundary(1,:));
@@ -34,18 +30,8 @@ FloeBnds = [];
 FloeNum = 1;
 
 %Remove islands
-load( './NaresSegments','borders','islands')
-land = union([borders]);
-%for ii = 1:length(islands)
-%    [xi(ii),yi(ii)] = centroid(islands(ii));
-%end
-if ISLANDS
-    % R(1:4) = [];
-    R = [islands; borders];
-else
-    R = borders;
-end
-isles = union([islands]);
+load( 'kobuk_one_floe.mat','wholelake','lakeShape')
+R(1) = subtract(B1,wholelake); R(2) = subtract(B2,wholelake); R(3) = subtract(B3,wholelake); R(4) = subtract(B4,wholelake);
 
 bound = c2_boundary_poly;
 for ii = 1:length(R)
@@ -77,19 +63,7 @@ for jj = 1:Ny
                 Y = 0.995*dy/2*(2*(rand(N,1)-0.5));
                 in = inpolygon(X,Y,boundary.Vertices(:,1),boundary.Vertices(:,2));
                 X = X(in); Y = Y(in);
-                for kk = 1:length(islands)
-                    in = inpolygon(X,Y,islands(kk).Vertices(:,1),islands(kk).Vertices(:,2));
-                    X = X(~in); Y = Y(~in);
-                end
-                %X = [X; xi']; Y = [Y; yi'];
-                %             for i = 1:2%nx
-                %                 X = [(-1)^i*dx/2 (-1)^i*dx/2 0 0];%xx(:,i:i+1); X = X(:);
-                %                 Y = [-dy/2 dy/2 dy/2 -dy/2];%Y = yy(:,i:i+1); Y = Y(:);
-                %                 b{i} = [X',Y'];
-                %             end
                 [~, b,~,~,~] = polybnd_voronoi([X Y],boundary.Vertices);
-                %             [~, b,~,~,~] = polybnd_voronoi([X Y],boundary.Vertices); %%Use these when having
-                %             boundaries
                 
                 for iii = 1:length(b)
                     bonds(iii).bond = [];
@@ -98,7 +72,7 @@ for jj = 1:Ny
                 clear poly; count = 1; clear polyfloe;
                 for m = 1:length(b)
                     poly = polyshape(b{m});
-                    poly = subtract(poly,land);
+                    poly = intersect(poly,lakeShape);
                     if area(poly)>0
                         if length(regions(poly))>1
                             R2 = regions(poly);
@@ -112,12 +86,6 @@ for jj = 1:Ny
                         end
                     end
                 end
-%                save('./Initialize_Model/poly_noislands.mat','polyfloe');
-%                error()
-
-                load('./Initialize_Model/poly_noislands_highres.mat','polyfloe_ni_hr');
-                poly = polyfloe_ni_hr;
-                poly = [[Floe.poly]'; poly'];
                 for iii = 1:length(poly)
                     bonds(iii).bond = [];
                 end
